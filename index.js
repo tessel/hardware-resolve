@@ -142,5 +142,47 @@ function root (file, next)
   next(null, pushdir, path.join(relpath, path.basename(file)));
 }
 
+function bundle (arg)
+{
+  function duparg (arr) {
+    var obj = {};
+    arr.forEach(function (arg) {
+      obj[arg] = arg;
+    })
+    return obj;
+  }
+
+  var ret = {};
+
+  root(arg, function (err, pushdir, relpath) {
+    var files;
+    if (!pushdir) {
+      ret.warning = String(err);
+
+      if (fs.lstatSync(arg).isDirectory()) {
+        pushdir = fs.realpathSync(arg);
+        relpath = fs.lstatSync(path.join(arg, 'index.js')) && 'index.js';
+        files = duparg(fsutil.readdirRecursiveSync(arg, {
+          inflateSymlinks: true,
+          excludeHiddenUnix: true
+        }))
+      } else {
+        pushdir = path.dirname(fs.realpathSync(arg));
+        relpath = path.basename(arg);
+        files = duparg([path.basename(arg)]);
+      }
+    } else {
+      files = list(pushdir)
+    }
+
+    ret.pushdir = pushdir;
+    ret.relpath = relpath;
+    ret.files = files;
+  })
+
+  return ret;
+}
+
 exports.list = list;
 exports.root = root;
+exports.bundle = bundle;
