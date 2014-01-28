@@ -5,6 +5,7 @@ var fs = require('fs');
 var path = require('path');
 
 var minimatch = require("minimatch")
+var osenv = require('osenv')
 
 var fsutil = require('./fsutil')
 
@@ -18,7 +19,8 @@ function isGlob (glob) {
   });
 }
 
-function list (dir, filesOut, modulesOut) {
+function list (dir, filesOut, modulesOut)
+{
   filesOut = filesOut || {};
   modulesOut = modulesOut || {};
 
@@ -42,7 +44,7 @@ function list (dir, filesOut, modulesOut) {
           pathGlob.push([new minimatch.Minimatch(key.substr(2)), hash[key]])
         } else {
           try {
-            if (typeof hash[key] != 'string' && fs.lstatSync(path.join('./test/a', key)).isDirectory()) {
+            if (typeof hash[key] != 'string' && fs.lstatSync(path.join(dir, key)).isDirectory()) {
               pathGlob.push([new minimatch.Minimatch(path.join(key, '**')), hash[key]])
             } else {
               paths[key.substr(2)] = typeof hash[key] == 'string' ? path.join('/', hash[key]).substr(1) : hash[key];
@@ -55,12 +57,11 @@ function list (dir, filesOut, modulesOut) {
     });
   }
 
-  // update({'./**': true, '*': true})
   update(pkg.hardware || {});
   update({'./package.json': true})
 
   fsutil.readdirRecursiveSync(dir, {
-    inflateSymlinks: false,
+    inflateSymlinks: true,
     excludeHiddenUnix: true,
     filter: function (file, subdir) {
       // Exclude node_modules
@@ -113,4 +114,33 @@ function list (dir, filesOut, modulesOut) {
   return filesOut;
 }
 
+function root (file, next)
+{
+  if (fs.lstatSync(file).isDirectory()) {
+    file = path.join(file, 'index.js');
+  }
+  fs.lstatSync(file);
+
+  var pushdir = fs.realpathSync(path.dirname(file));
+
+  // Find node_modules dir
+  var pushdirbkp = pushdir;
+  var relpath = '';
+  while (path.dirname(pushdir) != '/' && !fs.existsSync(path.join(pushdir, 'package.json'))) {
+    relpath = path.join(path.basename(pushdir), relpath);
+    pushdir = path.dirname(pushdir);
+  }
+
+  // If we never find a package.json or it is the home directory, we've failed.
+  if (path.dirname(pushdir) == '/') {
+    return next(new Error('No root directory found.'))
+  }
+  if (fs.realpathSync(osenv.home()) == fs.realpathSync(pushdir)) {
+    return next(new Error('No root directory found. (Cowardly refusing to use the home directory, even though ~/package.json or ~/node_modules exists.)'));
+  }
+
+  next(null, pushdir, path.join(relpath, path.basename(file)));
+}
+
 exports.list = list;
+exports.root = root;

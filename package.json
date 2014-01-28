@@ -6,8 +6,12 @@
   "directories": {
     "test": "test"
   },
+  "bin": {
+    "hardware-resolve": "./bin.js"
+  },
   "dependencies": {
-    "minimatch": "~0.2.14"
+    "minimatch": "~0.2.14",
+    "osenv": "0.0.3"
   },
   "devDependencies": {
     "tape": "~2.3.2"
