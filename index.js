@@ -23,7 +23,11 @@ function list (dir, filesOut, modulesOut)
   filesOut = filesOut || {};
   modulesOut = modulesOut || {};
 
-  var pkg = require((dir[0] == '/' || dir[0] == '.' ? '' : './') + path.join(dir, 'package.json'), 'utf-8');
+  try {
+    var pkg = require((dir[0] == '/' || dir[0] == '.' ? '' : './') + path.join(dir, 'package.json'), 'utf-8');
+  } catch (e) {
+    var pkg = {};
+  }
 
   // Patterns and replacements.
   var
@@ -131,56 +135,14 @@ function root (file, next)
 
   // If we never find a package.json or it is the home directory, we've failed.
   if (path.dirname(pushdir) == '/') {
-    return next(new Error('No root directory found.'))
+    return next(new Error('No package.json or node_modules found.'))
   }
   if (fs.realpathSync(osenv.home()) == fs.realpathSync(pushdir)) {
-    return next(new Error('No root directory found. (Cowardly refusing to use the home directory, even though ~/package.json or ~/node_modules exists.)'));
+    return next(new Error('No package.json or node_modules found. (Cowardly refusing to use the home directory, even though ~/package.json or ~/node_modules exists.)'));
   }
 
   next(null, pushdir, path.join(relpath, path.basename(file)));
 }
 
-function bundle (arg)
-{
-  function duparg (arr) {
-    var obj = {};
-    arr.forEach(function (arg) {
-      obj[arg] = arg;
-    })
-    return obj;
-  }
-
-  var ret = {};
-
-  root(arg, function (err, pushdir, relpath) {
-    var files;
-    if (!pushdir) {
-      ret.warning = String(err);
-
-      if (fs.lstatSync(arg).isDirectory()) {
-        pushdir = fs.realpathSync(arg);
-        relpath = fs.lstatSync(path.join(arg, 'index.js')) && 'index.js';
-        files = duparg(fsutil.readdirRecursiveSync(arg, {
-          inflateSymlinks: true,
-          excludeHiddenUnix: true
-        }))
-      } else {
-        pushdir = path.dirname(fs.realpathSync(arg));
-        relpath = path.basename(arg);
-        files = duparg([path.basename(arg)]);
-      }
-    } else {
-      files = list(pushdir)
-    }
-
-    ret.pushdir = pushdir;
-    ret.relpath = relpath;
-    ret.files = files;
-  })
-
-  return ret;
-}
-
 exports.list = list;
 exports.root = root;
-exports.bundle = bundle;

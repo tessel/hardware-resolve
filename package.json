@@ -1,13 +1,10 @@
 {
   "name": "hardware-resolve",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "Resolves hardware dependencies in package.json",
   "main": "index.js",
   "directories": {
     "test": "test"
-  },
-  "bin": {
-    "hardware-resolve": "./bin.js"
   },
   "dependencies": {
     "minimatch": "~0.2.14",
