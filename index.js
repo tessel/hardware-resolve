@@ -6,8 +6,7 @@ var path = require('path');
 
 var minimatch = require("minimatch")
 var osenv = require('osenv')
-
-var fsutil = require('./fsutil')
+var effess = require('effess')
 
 function isObject (a) {
   return typeof a == 'object';
@@ -60,7 +59,7 @@ function list (dir, filesOut, modulesOut)
   update(pkg.hardware || {});
   update({'./package.json': true})
 
-  fsutil.readdirRecursiveSync(dir, {
+  effess.readdirRecursiveSync(dir, {
     inflateSymlinks: true,
     excludeHiddenUnix: true,
     filter: function (file, subdir) {
@@ -68,7 +67,6 @@ function list (dir, filesOut, modulesOut)
       return !(path.normalize(subdir) == path.normalize(dir) && file == 'node_modules');
     }
   }).filter(function (file) {
-    file = path.relative(dir, file);
     var ret = true;
     pathGlob.forEach(function (mod) {
       if (mod[0].match(file)) {

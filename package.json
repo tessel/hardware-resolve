@@ -1,6 +1,6 @@
 {
   "name": "hardware-resolve",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Resolves hardware dependencies in package.json",
   "main": "index.js",
   "directories": {
@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "minimatch": "~0.2.14",
-    "osenv": "0.0.3"
+    "osenv": "0.0.3",
+    "effess": "0.0.1"
   },
   "devDependencies": {
     "tape": "~2.3.2"
