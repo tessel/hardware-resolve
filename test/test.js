@@ -1,7 +1,7 @@
 var test = require('tape');
 
 test('package test', function (t) {
-    t.plan(2);
+    t.plan(3);
 
     var hardwareResolve = require('../');
 
@@ -22,4 +22,8 @@ test('package test', function (t) {
   'node_modules/async/component.json': 'node_modules/async/component.json',
   'node_modules/async/package.json': 'node_modules/async/package.json',
   'node_modules/async/lib/async.js': 'node_modules/async/lib/async.js' });
+
+    hardwareResolve.root(__dirname + '/b/index.js', function (err, pushdir, relpath) {
+      t.ok(relpath == 'index.js', 'node_modules should trigger resolution');
+    })
 });

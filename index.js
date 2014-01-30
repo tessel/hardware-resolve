@@ -130,7 +130,7 @@ function root (file, next)
   // Find node_modules dir
   var pushdirbkp = pushdir;
   var relpath = '';
-  while (path.dirname(pushdir) != '/' && !fs.existsSync(path.join(pushdir, 'package.json'))) {
+  while (path.dirname(pushdir) != '/' && !fs.existsSync(path.join(pushdir, 'package.json')) && !fs.existsSync(path.join(pushdir, 'node_modules'))) {
     relpath = path.join(path.basename(pushdir), relpath);
     pushdir = path.dirname(pushdir);
   }
