@@ -1,7 +1,7 @@
 var test = require('tape');
 
 test('package test', function (t) {
-    t.plan(1);
+    t.plan(2);
 
     var hardwareResolve = require('../');
 
@@ -13,4 +13,13 @@ test('package test', function (t) {
   'node_modules/async/component.json': 'node_modules/async/component.json',
   'node_modules/async/package.json': 'node_modules/async/package.json',
   'node_modules/async/lib/async.js': 'node_modules/async/lib/async.js' }, 'Invalid hardware resolve list');
+
+
+    t.deepEqual(hardwareResolve.list(__dirname + '/b'),
+{ 'index.js': 'index.js',
+  'node_modules/async/LICENSE': 'node_modules/async/LICENSE',
+  'node_modules/async/README.md': 'node_modules/async/README.md',
+  'node_modules/async/component.json': 'node_modules/async/component.json',
+  'node_modules/async/package.json': 'node_modules/async/package.json',
+  'node_modules/async/lib/async.js': 'node_modules/async/lib/async.js' });
 });

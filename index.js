@@ -70,7 +70,7 @@ function list (dir, filesOut, modulesOut)
     excludeHiddenUnix: true,
     filter: function (file, subdir) {
       // Exclude node_modules
-      return !(path.normalize(subdir) == path.normalize(dir) && (!hasPkg || file == 'node_modules'));
+      return !hasPkg || !(path.normalize(subdir) == path.normalize(dir) && file == 'node_modules');
     }
   }).filter(function (file) {
     var ret = true;
