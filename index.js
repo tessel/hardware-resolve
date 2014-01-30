@@ -25,8 +25,10 @@ function list (dir, filesOut, modulesOut)
 
   try {
     var pkg = require((dir[0] == '/' || dir[0] == '.' ? '' : './') + path.join(dir, 'package.json'), 'utf-8');
+    var hasPkg = true;
   } catch (e) {
     var pkg = {};
+    var hasPkg = false;
   }
 
   // Patterns and replacements.
@@ -68,7 +70,7 @@ function list (dir, filesOut, modulesOut)
     excludeHiddenUnix: true,
     filter: function (file, subdir) {
       // Exclude node_modules
-      return !(path.normalize(subdir) == path.normalize(dir) && file == 'node_modules');
+      return !(path.normalize(subdir) == path.normalize(dir) && (!hasPkg || file == 'node_modules'));
     }
   }).filter(function (file) {
     var ret = true;
@@ -87,7 +89,7 @@ function list (dir, filesOut, modulesOut)
     }
   })
 
-  // Check modules.
+  // Check dependencies.
   Object.keys(pkg.dependencies || {}).filter(function (file) {
     var ret = true;
     moduleGlob.forEach(function (mod) {
