@@ -18,17 +18,26 @@ function isGlob (glob) {
   });
 }
 
-function list (dir, filesOut, modulesOut)
+function warn (err) {
+  // console.error.apply(console, ['WARN'].concat([].slice.call(arguments)));
+}
+
+function list (dir, filesOut, modulesOut, defaults)
 {
   filesOut = filesOut || {};
   modulesOut = modulesOut || {};
 
+  var pkgpath = (dir[0] == '/' || dir[0] == '.' ? '' : './') + path.join(dir, 'package.json');
   try {
-    var pkg = require((dir[0] == '/' || dir[0] == '.' ? '' : './') + path.join(dir, 'package.json'), 'utf-8');
+    var pkg = require(pkgpath, 'utf-8');
     var hasPkg = true;
   } catch (e) {
     var pkg = {};
     var hasPkg = false;
+
+    if (fs.existsSync(pkgpath)) {
+      warn('Invalid package.json:', pkgpath);
+    }
   }
 
   // Patterns and replacements.
@@ -65,12 +74,17 @@ function list (dir, filesOut, modulesOut)
   update(pkg.hardware || {});
   update({'./package.json': true})
 
+  if (defaults) {
+    update(defaults);
+  }
+
+  // Check files.
   effess.readdirRecursiveSync(dir, {
     inflateSymlinks: true,
     excludeHiddenUnix: true,
     filter: function (file, subdir) {
       // Exclude node_modules
-      return !hasPkg || !(path.normalize(subdir) == path.normalize(dir) && file == 'node_modules');
+      return !(path.normalize(subdir) == path.normalize(dir) && file == 'node_modules');
     }
   }).filter(function (file) {
     var ret = true;
@@ -89,8 +103,16 @@ function list (dir, filesOut, modulesOut)
     }
   })
 
-  // Check dependencies.
-  Object.keys(pkg.dependencies || {}).filter(function (file) {
+  // Check submodules.
+  var submodules = [];
+  if (pkg.dependencies) {
+    submodules = Object.keys(pkg.dependencies);
+  } else {
+    try {
+      submodules = fs.readdirSync(path.join(dir, 'node_modules'));
+    } catch (e) { }
+  }
+  submodules.filter(function (file) {
     var ret = true;
     moduleGlob.forEach(function (mod) {
       if (mod[0].match(file)) {
@@ -109,6 +131,11 @@ function list (dir, filesOut, modulesOut)
   
   // Merge in module output.
   Object.keys(modulesOut).forEach(function (key) {
+    if (!fs.existsSync(path.join(dir, 'node_modules', modulesOut[key]))) {
+      warn('Missing dependency', path.join(dir, 'node_modules', modulesOut[key]));
+      return;
+    }
+
     var moduleFilesOut = list(path.join(dir, 'node_modules', modulesOut[key]))
     Object.keys(moduleFilesOut).forEach(function (file) {
       filesOut[path.join('node_modules', modulesOut[key], file)] = path.join('node_modules', modulesOut[key], moduleFilesOut[file]);

@@ -1,6 +1,6 @@
 {
   "name": "hardware-resolve",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "description": "Resolves hardware dependencies in package.json",
   "main": "index.js",
   "directories": {
@@ -17,6 +17,6 @@
   "scripts": {
     "test": "tap test/*.js"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "Tim Cameron Ryan <tim@technical.io>",
+  "license": "MIT"
 }
