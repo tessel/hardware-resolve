@@ -1,6 +1,6 @@
 {
   "name": "hardware-resolve",
-  "version": "0.1.0",
+  "version": "0.1.0-1",
   "description": "Resolves hardware dependencies in package.json",
   "main": "index.js",
   "directories": {

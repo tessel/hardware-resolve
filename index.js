@@ -51,7 +51,7 @@ function list (dir, filesOut, modulesOut, defaults)
         if (isGlob(key)) {
           moduleGlob.push([new minimatch.Minimatch(key), hash[key]]);
         } else {
-          modules[key] = pkg.hardware[key];
+          modules[key] = hash[key];
         }
       } else {
         if (isGlob(key)) {
