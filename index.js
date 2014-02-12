@@ -136,7 +136,7 @@ function list (dir, filesOut, modulesOut, defaults)
       return;
     }
 
-    var moduleFilesOut = list(path.join(dir, 'node_modules', modulesOut[key]))
+    var moduleFilesOut = list(path.join(dir, 'node_modules', modulesOut[key]), null, null, defaults)
     Object.keys(moduleFilesOut).forEach(function (file) {
       filesOut[path.join('node_modules', modulesOut[key], file)] = path.join('node_modules', modulesOut[key], moduleFilesOut[file]);
     })
