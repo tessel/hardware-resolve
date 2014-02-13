@@ -45,8 +45,18 @@ function list (dir, filesOut, modulesOut, defaults)
     moduleGlob = [], modules = {},
     pathGlob = [], paths = {};
 
+  var propagate = {};
+
   function update (hash) {
     Object.keys(hash).forEach(function (key) {
+      if (key.match(/:/)) {
+        if (!propagate[key.replace(/:.*$/, '')]) {
+          propagate[key.replace(/:.*$/, '')] = {};
+        }
+        propagate[key.replace(/:.*$/, '')][key.replace(/^.*?:/, '')] = hash[key];
+        return;
+      }
+
       if (key[0] != '/' && key[0] != '.') {
         if (isGlob(key)) {
           moduleGlob.push([new minimatch.Minimatch(key), hash[key]]);
@@ -72,11 +82,8 @@ function list (dir, filesOut, modulesOut, defaults)
   }
 
   update(pkg.hardware || {});
+  defaults && update(defaults);
   update({'./package.json': true})
-
-  if (defaults) {
-    update(defaults);
-  }
 
   // Check files.
   effess.readdirRecursiveSync(dir, {
@@ -136,7 +143,7 @@ function list (dir, filesOut, modulesOut, defaults)
       return;
     }
 
-    var moduleFilesOut = list(path.join(dir, 'node_modules', modulesOut[key]), null, null, defaults)
+    var moduleFilesOut = list(path.join(dir, 'node_modules', modulesOut[key]), null, null, propagate[key] || {})
     Object.keys(moduleFilesOut).forEach(function (file) {
       filesOut[path.join('node_modules', modulesOut[key], file)] = path.join('node_modules', modulesOut[key], moduleFilesOut[file]);
     })
