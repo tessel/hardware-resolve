@@ -164,13 +164,13 @@ function root (file, next)
   // Find node_modules dir
   var pushdirbkp = pushdir;
   var relpath = '';
-  while (path.dirname(pushdir) != '/' && !fs.existsSync(path.join(pushdir, 'package.json')) && !fs.existsSync(path.join(pushdir, 'node_modules'))) {
+  while (path.dirname(pushdir) != pushdir && !fs.existsSync(path.join(pushdir, 'package.json')) && !fs.existsSync(path.join(pushdir, 'node_modules'))) {
     relpath = path.join(path.basename(pushdir), relpath);
     pushdir = path.dirname(pushdir);
   }
 
   // If we never find a package.json or it is the home directory, we've failed.
-  if (path.dirname(pushdir) == '/') {
+  if (path.dirname(pushdir) == pushdir) {
     return next(new Error('No package.json or node_modules found.'))
   }
   if (fs.realpathSync(osenv.home()) == fs.realpathSync(pushdir)) {
