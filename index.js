@@ -120,6 +120,8 @@ function list (dir, filesOut, modulesOut, defaults)
     } catch (e) { }
   }
   submodules.filter(function (file) {
+    return fs.lstatSync(path.join(dir, 'node_modules', file)).isDirectory()
+  }).filter(function (file) {
     var ret = true;
     moduleGlob.forEach(function (mod) {
       if (mod[0].match(file)) {
