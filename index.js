@@ -112,16 +112,14 @@ function list (dir, filesOut, modulesOut, defaults)
 
   // Check submodules.
   var submodules = [];
-  if (pkg.dependencies) {
-    submodules = Object.keys(pkg.dependencies);
-  } else {
-    try {
-      submodules = fs.readdirSync(path.join(dir, 'node_modules'));
-    } catch (e) { }
-  }
+  try {
+    submodules = fs
+      .readdirSync(path.join(dir, 'node_modules'))
+      .filter(function (file) {
+        return fs.lstatSync(path.join(dir, 'node_modules', file)).isDirectory()
+      });
+  } catch (e) { }
   submodules.filter(function (file) {
-    return fs.lstatSync(path.join(dir, 'node_modules', file)).isDirectory()
-  }).filter(function (file) {
     var ret = true;
     moduleGlob.forEach(function (mod) {
       if (mod[0].match(file)) {
