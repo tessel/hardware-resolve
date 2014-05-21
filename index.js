@@ -116,7 +116,7 @@ function list (dir, filesOut, modulesOut, defaults)
     submodules = fs
       .readdirSync(path.join(dir, 'node_modules'))
       .filter(function (file) {
-        return fs.lstatSync(path.join(dir, 'node_modules', file)).isDirectory()
+        return fs.statSync(path.join(dir, 'node_modules', file)).isDirectory();
       });
   } catch (e) { }
   submodules.filter(function (file) {
